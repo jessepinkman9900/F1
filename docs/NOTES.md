@@ -108,3 +108,7 @@ resultId|raceId|driverId|constructorId|number|grid|position|positionText|positio
 
 - /base intial data
 - /derived all the tables that have been created using the tables from /base
+
+### TODO
+- add status from results.csv into laptimes/pitstops 
+- thinking: add a status column after driverId
