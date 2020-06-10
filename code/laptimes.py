@@ -1,6 +1,7 @@
 import pandas as pd 
 from tqdm import tqdm
 
+INF = 1e8 # 1e8 ms ~ 28 hours
 
 def fill_df(race_laptimes_df, col_df):
   ''' adds rows into the empty datafame 'col_df',
@@ -19,7 +20,7 @@ def fill_df(race_laptimes_df, col_df):
     ''' filling with inf to ensure same len for each row in df '''
     if len(time)!= num_laps:
       for _ in range(num_laps-len(time)):
-        time.append('inf')
+        time.append(INF)
 
     row = [driverId]+time   # final list to add into df
     col_df.loc[x] = row
