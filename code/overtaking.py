@@ -1,8 +1,12 @@
 import pandas as pd
+from tqdm import tqdm
 
 class Base:
   LAPTIMES_FILE = "./data/base/laptimes.csv"
   PITSTOPS_FILE = "./data/base/pitstops.csv"
+  SAVE_DIR = "./data/derived/overtaking/"
+  SAVE_FILE = "overtaking_race_"
+  CSV = ".csv"
   def __init__(self):
     self.laptimes_df = pd.read_csv(Base.LAPTIMES_FILE)
     self.pitstops_df = pd.read_csv(Base.PITSTOPS_FILE)
@@ -11,8 +15,9 @@ class Base:
     raceIds = set(self.laptimes_df['raceId'])
     return raceIds
   
-  def saveAsCsv(self,df,name):
-    return df.to_csv(name, index = False)
+  def saveAsCsv(self,df,raceId):
+    return df.to_csv(Base.SAVE_DIR + Base.SAVE_FILE 
+    + str(raceId) + Base.CSV, index = False)
 
 class Laptimes(Base):
   INF = int(1e8)
@@ -173,13 +178,13 @@ class Overtaking(Base):
 
 
 if __name__ == "__main__":
-    # raceIds = Base().getRaceIds()
-    raceIds = [841]
-    for raceId in raceIds:
+    raceIds = Base().getRaceIds()
+    # raceIds = [841]
+    for raceId in tqdm(raceIds):
       laptimes = Laptimes().createLaptimesDf(raceId)
       pitstops = Pitstops().createPistopsDf(raceId)
       actualLaptime = ActualLaptimes().createActualLaptimesDf(laptimes, pitstops)
       overtakes = Overtaking().createOvertakingDf(actualLaptime)
-      Base().saveAsCsv(overtakes,'test.csv')
+      Base().saveAsCsv(overtakes,raceId)
       print(overtakes)
       break
