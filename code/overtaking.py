@@ -245,5 +245,3 @@ if __name__ == "__main__":
       actualLaptime = ActualLaptimes().createActualLaptimesDf(laptimes, pitstops)
       overtakes = Overtaking().createOvertakingDf(actualLaptime)
       Base().saveAsCsv(overtakes,raceId)
-      print(overtakes)
-      break
