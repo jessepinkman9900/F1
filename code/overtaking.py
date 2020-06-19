@@ -8,9 +8,12 @@ class Base:
   def getRaceIds(self):
     raceIds = set(self.laptimes_df['raceId'])
     return raceIds
+  
+  def saveAsCsv(self,df,name):
+    return df.to_csv(name, index = False)
 
 class Laptimes(Base):
-  INF = 1e8
+  INF = int(1e8)
   def __init__(self):
     super().__init__()
     # self.INF = 
@@ -28,7 +31,7 @@ class Laptimes(Base):
       '''using indexes instead of 'driverId in driverIds' so that it'll 
       be easy to add rows into the df 
       ''' 
-      driverId = driverIds~[index]
+      driverId = driverIds[index]
       tmp = race_laptimes_df[race_laptimes_df['driverId']==driverId] # all the rows with the wanted driverId
       times = list(tmp.loc[:,'milliseconds']) # all lap times for a driver in this race
       if len(times) != num_laps:
@@ -64,5 +67,6 @@ if __name__ == "__main__":
     raceIds = Base().getRaceIds()
     for raceId in raceIds:
       laptimes = Laptimes().createLaptimesDf(raceId)
+      Base().saveAsCsv(laptimes,'test.csv')
       print(laptimes)
       break
