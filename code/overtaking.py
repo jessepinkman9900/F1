@@ -108,22 +108,69 @@ class ActualLaptimes(Base): # get the timing for a lap, remove the pitstop time 
   def __init__(self):
     super().__init__()
 
-  def removePitTime(self, laptimes, pitstops, columnDf):
+  def fillDf(self, laptimes, pitstops, columnDf):
     columns = laptimes.columns
     columnDf[columns[0]] = laptimes[columns[0]] # copy driverId column
+    columnDf[columns[1]] = laptimes[columns[1]] # copy driverId column
     
-    for column in columns:
+    for column in columns[2:]:
       columnDf[column] = laptimes[column] - pitstops[column] #subtract pitstop time from laptime
     
     return columnDf
     
   def createActualLaptimesDf(self, laptimes, pitstops):
-    columns = laptimes.columns
-    columnDf = pd.DataFrame(columns=columns)
-    return self.removePitTime(laptimes, pitstops, columnDf)
+    columnDf = pd.DataFrame(columns=laptimes.columns)
+    return self.fillDf(laptimes, pitstops, columnDf)
 
-class Overtaking:
-  pass
+class Overtaking(Base):
+  def __init__(self):
+    super().__init__()
+
+  def sort(self, actualLaptime, lap):
+    driverIds = actualLaptime['driverId'].to_numpy()
+    tmp = pd.DataFrame(columns=['driverId','time'])
+    tmp['driverId'] = driverIds
+    tmp['time'] = actualLaptime.loc[:, lap]
+    tmp.sort_values(['time'], axis=0, ascending=True, 
+    inplace=True, kind='quicksort', na_position='last')
+    tmp = tmp.reset_index(drop=True) #reset order to forget base indexing before sorting
+    return tmp
+  
+  def getPosition(self, standings, driver):
+    return standings.index[standings['driverId']==driver].tolist()[0]
+
+  def getOvertakes(self, prev, cur, driverIds):
+    overtakes = [[] for _ in range(len(driverIds))] #list to store list of all racers a driver overtook
+    for index in range(len(driverIds)):
+      driver = driverIds[index]
+      pos_last_lap = self.getPosition(prev, driver)
+      pos_this_lap = self.getPosition(cur, driver)
+      #add racers to list of position of racer improves
+      if pos_this_lap<pos_last_lap:
+        #all the racers behind me now who were not behind me in prev lap
+        drivers_behind_me_last_lap = set(prev.driverId[pos_last_lap+1:])
+        drivers_behind_me_this_lap = set(cur.driverId[pos_this_lap+1:])
+        racers_overtaken = drivers_behind_me_this_lap.difference(drivers_behind_me_last_lap)
+        overtakes[index] = list(racers_overtaken)
+    return overtakes
+
+  def fillDf(self, actualLaptime, columnDf):
+    driverIds = actualLaptime['driverId'].to_numpy()
+    laps = actualLaptime.columns[2:] #lap2 onwards
+    columnDf['driverId'] = driverIds
+    prev_lap_standins = self.sort(actualLaptime, 'lap_1')
+
+    for lap in laps:
+      cur_lap_standings = self.sort(actualLaptime, lap)
+      overtook = self.getOvertakes(prev_lap_standins, cur_lap_standings, driverIds)
+      columnDf[lap] = overtook
+      prev_lap_standins = cur_lap_standings
+    return columnDf
+
+  def createOvertakingDf(self, actualLaptime):
+    columnDf = pd.DataFrame(columns=laptimes.columns)
+    return self.fillDf(actualLaptime, columnDf)
+
 
 if __name__ == "__main__":
     # raceIds = Base().getRaceIds()
@@ -132,6 +179,7 @@ if __name__ == "__main__":
       laptimes = Laptimes().createLaptimesDf(raceId)
       pitstops = Pitstops().createPistopsDf(raceId)
       actualLaptime = ActualLaptimes().createActualLaptimesDf(laptimes, pitstops)
-      Base().saveAsCsv(actualLaptime,'test.csv')
-      print(actualLaptime)
+      overtakes = Overtaking().createOvertakingDf(actualLaptime)
+      Base().saveAsCsv(overtakes,'test.csv')
+      print(overtakes)
       break
