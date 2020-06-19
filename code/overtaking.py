@@ -16,20 +16,27 @@ class Base:
     return raceIds
   
   def saveAsCsv(self,df,raceId):
+    # store the csv files in ./data/derived/overtaking/overtaking_race_<raceId>.csv
     return df.to_csv(Base.SAVE_DIR + Base.SAVE_FILE 
     + str(raceId) + Base.CSV, index = False)
 
-class Laptimes(Base):
+
+
+
+class Laptimes(Base): # get df with the laptimes for a given race for each driver
   INF = int(1e8)
   def __init__(self):
     super().__init__()
 
   def fillDf(self, raceId, columnDf):
-    ''' adds rows into the empty datafame 'col_df',
-    each row: [driverid, laptime for each lap]
+    ''' adds rows into the empty datafame 'columnDf',
+    each row: [driverId, laptime for each lap]
     '''
+    # laptimes for race with given raceId argument
     race_laptimes_df = self.laptimes_df[self.laptimes_df['raceId']==raceId]
     driverIds = list(set(race_laptimes_df['driverId']))
+
+    # get number of laps in this race
     laps = list(set(race_laptimes_df['lap']))
     num_laps = len(laps)
 
@@ -38,11 +45,14 @@ class Laptimes(Base):
       be easy to add rows into the df 
       ''' 
       driverId = driverIds[index]
-      tmp = race_laptimes_df[race_laptimes_df['driverId']==driverId] # all the rows with the wanted driverId
-      times = list(tmp.loc[:,'milliseconds']) # all lap times for a driver in this race
+      # all the rows with the wanted driverId
+      tmp = race_laptimes_df[race_laptimes_df['driverId']==driverId] 
+      # all lap times for a driver in this race
+      times = list(tmp.loc[:,'milliseconds']) 
       if len(times) != num_laps:
         for _ in range(num_laps-len(times)):
-          times.append(Laptimes.INF)
+          # add default value INF for all laps without times in laptimes.csv
+          times.append(Laptimes.INF) 
 
       row = [driverId]+times # final list to add into df
       columnDf.loc[index] = row
@@ -55,24 +65,34 @@ class Laptimes(Base):
     '''
     race_laptimes_df = self.laptimes_df[self.laptimes_df['raceId']==raceId]
     laps = list(set(race_laptimes_df['lap']))
+    # append 'lap_' before lapnumber for easier readability 
     total_laps = ['lap_'+str(lap_num) for lap_num in laps]
+    # create the headers for the dataframe
     columns = ['driverId'] + total_laps
+    # create an empty dataframe with just column names
     columnDf = pd.DataFrame(columns=columns)
     return self.fillDf(raceId, columnDf)
 
-class Pitstops(Base):
+
+
+
+class Pitstops(Base): # get the pistop times for each lap in a given race [default 0]
   def __init__(self):
     super().__init__()
 
   def fillDf(self, raceId, columnDf):
-    ''' adds rows into the empty datafame 'col_df',
-    each row: [driverid, laptime for each lap]
+    ''' adds rows into the empty datafame 'columnDf',
+    each row: [driverid, pitstop time for each lap]
     '''
+    # get laptimes and pitstop times for the given raceId
     race_laptimes_df = self.laptimes_df[self.laptimes_df['raceId']==raceId]
     race_pitstops_df = self.pitstops_df[self.pitstops_df['raceId']==raceId]
+
+    # get list of all the drivers and laps in this race
     driverIds = list(set(race_laptimes_df['driverId']))
     laps = list(set(race_laptimes_df['lap']))
     num_laps = len(laps)
+
     for index in range(len(driverIds)):    
       '''using indexes instead of 'driverId in driverIds' so that it'll 
       be easy to add rows into the df 
@@ -101,12 +121,20 @@ class Pitstops(Base):
     ''' create an empty df with just column names, 
     and then call fillDf()
     '''
+    # get laptimes for the given raceId
     race_laptimes_df = self.laptimes_df[self.laptimes_df['raceId']==raceId]
+
+    # get list of the laps in this race
     laps = list(set(race_laptimes_df['lap']))
     total_laps = ['lap_'+str(lap_num) for lap_num in laps]
+
+    # create the headers for the dataframe
     columns = ['driverId'] + total_laps
+    # create an empty dataframe with just column names
     columnDf = pd.DataFrame(columns=columns)
     return self.fillDf(raceId, columnDf)
+
+
 
 
 class ActualLaptimes(Base): # get the timing for a lap, remove the pitstop time included in laptimes.csv
@@ -114,52 +142,79 @@ class ActualLaptimes(Base): # get the timing for a lap, remove the pitstop time 
     super().__init__()
 
   def fillDf(self, laptimes, pitstops, columnDf):
+    ''' adds rows into the empty datafame 'columnDf',
+    each row: [driverId, laptime - pitstop time for each lap]
+    '''
     columns = laptimes.columns
     columnDf[columns[0]] = laptimes[columns[0]] # copy driverId column
-    columnDf[columns[1]] = laptimes[columns[1]] # copy driverId column
+    # columnDf[columns[1]] = laptimes[columns[1]] # copy lap_1 column
     
-    for column in columns[2:]:
-      columnDf[column] = laptimes[column] - pitstops[column] #subtract pitstop time from laptime
-    
+    # lap_1 to final lap
+    for column in columns[1:]:
+      # subtract pitstop time from laptime
+      columnDf[column] = laptimes[column] - pitstops[column] 
     return columnDf
     
   def createActualLaptimesDf(self, laptimes, pitstops):
+    ''' create an empty df with just column names, 
+    and then call fillDf()
+    '''
+    # create an empty dataframe with just column names [col names taken from laptimes]
     columnDf = pd.DataFrame(columns=laptimes.columns)
     return self.fillDf(laptimes, pitstops, columnDf)
 
-class Overtaking(Base):
+
+
+
+class Overtaking(Base): # get df of who each racer overtook and in which lap for a given race
   def __init__(self):
     super().__init__()
 
   def sort(self, actualLaptime, lap):
+    ''' create the standings for this lap using the laptime '''
     driverIds = actualLaptime['driverId'].to_numpy()
+    # create a tmp dataframe in which we will sort to get standings for this lap
     tmp = pd.DataFrame(columns=['driverId','time'])
+    # fill dataframe with the driverIds
     tmp['driverId'] = driverIds
+    # fill dataframe with times for this lap
     tmp['time'] = actualLaptime.loc[:, lap]
+
+    # sort the dataframe based on the timing in 'time' column 
     tmp.sort_values(['time'], axis=0, ascending=True, 
     inplace=True, kind='quicksort', na_position='last')
-    tmp = tmp.reset_index(drop=True) #reset order to forget base indexing before sorting
+    # reset order to forget base indexing before sorting
+    tmp = tmp.reset_index(drop=True) 
     return tmp
   
   def getPosition(self, standings, driver):
+    ''' get the position of the drive in the standings for this lap '''
     return standings.index[standings['driverId']==driver].tolist()[0]
 
   def getOvertakes(self, prev, cur, driverIds):
+    ''' get list containg a list of racers each driver overtook in this lap '''
     overtakes = [[] for _ in range(len(driverIds))] #list to store list of all racers a driver overtook
     for index in range(len(driverIds)):
       driver = driverIds[index]
+
+      # get position of driver in last lap and this lap
       pos_last_lap = self.getPosition(prev, driver)
       pos_this_lap = self.getPosition(cur, driver)
+
       #add racers to list of position of racer improves
       if pos_this_lap<pos_last_lap:
         #all the racers behind me now who were not behind me in prev lap
         drivers_behind_me_last_lap = set(prev.driverId[pos_last_lap+1:])
         drivers_behind_me_this_lap = set(cur.driverId[pos_this_lap+1:])
         racers_overtaken = drivers_behind_me_this_lap.difference(drivers_behind_me_last_lap)
+        # add list of all drivers i overtook into the overtakes list
         overtakes[index] = list(racers_overtaken)
     return overtakes
 
   def fillDf(self, actualLaptime, columnDf):
+    ''' adds rows into the empty datafame 'columnDf',
+    each row: [driverId, list of drivers driver overtook for each lap]
+    '''
     driverIds = actualLaptime['driverId'].to_numpy()
     laps = actualLaptime.columns[2:] #lap2 onwards
     columnDf['driverId'] = driverIds
@@ -173,6 +228,10 @@ class Overtaking(Base):
     return columnDf
 
   def createOvertakingDf(self, actualLaptime):
+    ''' create an empty df with just column names, 
+    and then call fillDf()
+    '''
+    # create an empty dataframe with just column names [col names taken from actualLaptimes]
     columnDf = pd.DataFrame(columns=laptimes.columns)
     return self.fillDf(actualLaptime, columnDf)
 
