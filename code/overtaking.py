@@ -104,18 +104,34 @@ class Pitstops(Base):
     return self.fillDf(raceId, columnDf)
 
 
-class ActualLaptimes:
-  pass
+class ActualLaptimes(Base): # get the timing for a lap, remove the pitstop time included in laptimes.csv
+  def __init__(self):
+    super().__init__()
+
+  def removePitTime(self, laptimes, pitstops, columnDf):
+    columns = laptimes.columns
+    columnDf[columns[0]] = laptimes[columns[0]] # copy driverId column
+    
+    for column in columns:
+      columnDf[column] = laptimes[column] - pitstops[column] #subtract pitstop time from laptime
+    
+    return columnDf
+    
+  def createActualLaptimesDf(self, laptimes, pitstops):
+    columns = laptimes.columns
+    columnDf = pd.DataFrame(columns=columns)
+    return self.removePitTime(laptimes, pitstops, columnDf)
 
 class Overtaking:
   pass
 
 if __name__ == "__main__":
-    raceIds = Base().getRaceIds()
-    # raceIds = [841]
+    # raceIds = Base().getRaceIds()
+    raceIds = [841]
     for raceId in raceIds:
       laptimes = Laptimes().createLaptimesDf(raceId)
-      pit = Pitstops().createPistopsDf(raceId)
-      Base().saveAsCsv(pit,'test.csv')
-      print(pit)
+      pitstops = Pitstops().createPistopsDf(raceId)
+      actualLaptime = ActualLaptimes().createActualLaptimesDf(laptimes, pitstops)
+      Base().saveAsCsv(actualLaptime,'test.csv')
+      print(actualLaptime)
       break
