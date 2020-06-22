@@ -217,6 +217,9 @@ class Overtaking(Base): # get df of who each racer overtook and in which lap for
     ''' get the position of the drive in the standings for this lap '''
     return standings.index[standings['driverId']==driver].tolist()[0]
 
+  def legitimateOvertakes(self, racers_overtaken):
+    return racers_overtaken
+
   def getOvertakes(self, prev, cur, driverIds):
     ''' get list containg a list of racers each driver overtook in this lap '''
     overtakes = [[] for _ in range(len(driverIds))] #list to store list of all racers a driver overtook
@@ -233,6 +236,8 @@ class Overtaking(Base): # get df of who each racer overtook and in which lap for
         drivers_behind_me_last_lap = set(prev.driverId[pos_last_lap+1:])
         drivers_behind_me_this_lap = set(cur.driverId[pos_this_lap+1:])
         racers_overtaken = drivers_behind_me_this_lap.difference(drivers_behind_me_last_lap)
+        # filter the overtakes based on if it is legitimate overtake or of it is due to retirement or other resons
+        racers_overtaken = self.legitimateOvertakes(racers_overtaken)
         # add list of all drivers i overtook into the overtakes list
         overtakes[index] = list(racers_overtaken)
     return overtakes
