@@ -175,6 +175,10 @@ class ActualLaptimes(Base): # get the timing for a lap, remove the pitstop time 
     for column in columns[1:]:
       # subtract pitstop time from laptime
       columnDf[column] = laptimes[column] - pitstops[column] 
+
+    # get cumulative sum
+    for index in range(2,len(columns)):
+      columnDf[columns[index]]+=columnDf[columns[index-1]]
     return columnDf
     
   def createActualLaptimesDf(self, laptimes, pitstops):
