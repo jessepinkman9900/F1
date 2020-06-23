@@ -197,6 +197,8 @@ class ActualLaptimes(Base): # get the timing for a lap, remove the pitstop time 
 class Overtaking(Base): # get df of who each racer overtook and in which lap for a given race
   def __init__(self):
     super().__init__()
+    self.columns = ['raceId', 'driverId', 'lap', 'driverOvertaken']
+    self.overtakeDf = pd.DataFrame(columns=self.columns)
 
   def sort(self, actualLaptime, lap):
     ''' create the standings for this lap using the laptime '''
@@ -276,6 +278,33 @@ class Overtaking(Base): # get df of who each racer overtook and in which lap for
     # create an empty dataframe with just column names [col names taken from actualLaptimes]
     columnDf = pd.DataFrame(columns=laptimes.columns)
     return self.fillDf(raceId, actualLaptime, columnDf)
+  
+  def createPanel(self, raceId, data):
+    res = pd.DataFrame(columns=self.columns)
+    driverId = data['driverId']
+    laps = [lap.split("_")[1] for lap in data.keys()[2:]]
+    for lap in laps:
+      overtaken_racer_ids = data["lap_"+str(lap)]
+      for racerId in overtaken_racer_ids:
+        tmp = pd.DataFrame({
+          "raceId":[raceId],
+          "driverId":[driverId],
+          "lap":[lap],
+          "driverOvertaken":[racerId]
+        })
+        res = res.append(tmp)
+    return res
+
+  def addToOvertakeDf(self, raceId, overtakes):
+    # iterate through each row in overtakes and add each column in that row into the self.overtakeDf dataframe
+    for ind, data in overtakes.iterrows():
+      tmp = self.createPanel(raceId, data)
+      self.overtakeDf = self.overtakeDf.append(tmp)
+
+  def saveOvertakeDf(self):
+    self.overtakeDf.to_csv(Base.SAVE_DIR + "overtaking.csv",index=False)
+
+
 
 
 if __name__ == "__main__":
@@ -287,4 +316,6 @@ if __name__ == "__main__":
       pitstops = PITSTOPS.createPistopsDf(raceId)
       actualLaptime = ACTUAL_LAPTIMES.createActualLaptimesDf(laptimes, pitstops)
       overtakes = OVERTAKES.createOvertakingDf(raceId, actualLaptime)
+      OVERTAKES.addToOvertakeDf(raceId, overtakes)
       BASE.saveAsCsv(overtakes,raceId)
+    OVERTAKES.saveOvertakeDf()
