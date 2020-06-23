@@ -26,12 +26,14 @@ from tqdm import tqdm
 class Base:
   LAPTIMES_FILE = "./data/base/laptimes.csv"
   PITSTOPS_FILE = "./data/base/pitstops.csv"
+  RESULTS_FILE = "./data/base/results.csv"
   SAVE_DIR = "./data/derived/overtaking/"
   SAVE_FILE = "overtaking_race_"
   CSV = ".csv"
   def __init__(self):
     self.laptimes_df = pd.read_csv(Base.LAPTIMES_FILE)
     self.pitstops_df = pd.read_csv(Base.PITSTOPS_FILE)
+    self.results_df = pd.read_csv(Base.RESULTS_FILE)
     
   def getRaceIds(self):
     raceIds = set(self.laptimes_df['raceId'])
@@ -217,10 +219,20 @@ class Overtaking(Base): # get df of who each racer overtook and in which lap for
     ''' get the position of the drive in the standings for this lap '''
     return standings.index[standings['driverId']==driver].tolist()[0]
 
-  def legitimateOvertakes(self, racers_overtaken):
-    return racers_overtaken
+  def legitimateOvertakes(self, raceId, lap, racers_overtaken):
+    print(raceId, lap)
+    lap = lap.split("_")[1]
+    # if each driver in racers_overtaken was still racing when this overtake happened
+    # i.e it is wthin the number of laps they completed as given in results.csv
+    final = []
+    for racer in racers_overtaken:
+      laps_done = self.results_df[(self.results_df['raceId']==raceId) & (self.results_df['driverId']==racer)]['laps']
+      # equal to because racer completed laps_done laps, racer gets out of race in the incomplete lap that will not be counted in laps_done
+      if int(lap)<=int(laps_done): # int conversion, beacuse stored as string in df
+        final.append(racer)
+    return set(final)
 
-  def getOvertakes(self, prev, cur, driverIds):
+  def getOvertakes(self, raceId, lap, prev, cur, driverIds):
     ''' get list containg a list of racers each driver overtook in this lap '''
     overtakes = [[] for _ in range(len(driverIds))] #list to store list of all racers a driver overtook
     for index in range(len(driverIds)):
@@ -237,12 +249,12 @@ class Overtaking(Base): # get df of who each racer overtook and in which lap for
         drivers_behind_me_this_lap = set(cur.driverId[pos_this_lap+1:])
         racers_overtaken = drivers_behind_me_this_lap.difference(drivers_behind_me_last_lap)
         # filter the overtakes based on if it is legitimate overtake or of it is due to retirement or other resons
-        racers_overtaken = self.legitimateOvertakes(racers_overtaken)
+        racers_overtaken = self.legitimateOvertakes(raceId, lap, racers_overtaken)
         # add list of all drivers i overtook into the overtakes list
         overtakes[index] = list(racers_overtaken)
     return overtakes
 
-  def fillDf(self, actualLaptime, columnDf):
+  def fillDf(self, raceId, actualLaptime, columnDf):
     ''' adds rows into the empty datafame 'columnDf',
     each row: [driverId, list of drivers driver overtook for each lap]
     '''
@@ -253,18 +265,18 @@ class Overtaking(Base): # get df of who each racer overtook and in which lap for
 
     for lap in laps:
       cur_lap_standings = self.sort(actualLaptime, lap)
-      overtook = self.getOvertakes(prev_lap_standins, cur_lap_standings, driverIds)
+      overtook = self.getOvertakes(raceId, lap, prev_lap_standins, cur_lap_standings, driverIds)
       columnDf[lap] = overtook
       prev_lap_standins = cur_lap_standings
     return columnDf
 
-  def createOvertakingDf(self, actualLaptime):
+  def createOvertakingDf(self, raceId, actualLaptime):
     ''' create an empty df with just column names, 
     and then call fillDf()
     '''
     # create an empty dataframe with just column names [col names taken from actualLaptimes]
     columnDf = pd.DataFrame(columns=laptimes.columns)
-    return self.fillDf(actualLaptime, columnDf)
+    return self.fillDf(raceId, actualLaptime, columnDf)
 
 
 if __name__ == "__main__":
@@ -275,5 +287,5 @@ if __name__ == "__main__":
       laptimes = LAPTIMES.createLaptimesDf(raceId)
       pitstops = PITSTOPS.createPistopsDf(raceId)
       actualLaptime = ACTUAL_LAPTIMES.createActualLaptimesDf(laptimes, pitstops)
-      overtakes = OVERTAKES.createOvertakingDf(actualLaptime)
+      overtakes = OVERTAKES.createOvertakingDf(raceId, actualLaptime)
       BASE.saveAsCsv(overtakes,raceId)
