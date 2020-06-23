@@ -5,7 +5,7 @@
 ## Copyright: Copyright 2020, F1 Data Project
 ## Credits: [Saisrinivasa Likhit Kota]
 ## License: MIT
-## Version: 0.1.0
+## Version: 0.1.1
 ## Mmaintainer: Saisrinivasa Likhit Kota
 ## Email: saisrinivasa.likhit@students.iiit.ac.in
 ## Status: Dev
@@ -15,7 +15,7 @@ __author__ = "Saisrinivasa Likhit Kota"
 __copyright__ = "Copyright 2020, F1 Data Project"
 __credits__ = ["Saisrinivasa Likhit Kota"]
 __license__ = "MIT"
-__version__ = "0.1.0"
+__version__ = "0.1.1"~
 __maintainer__ = "Saisrinivasa Likhit Kota"
 __email__ = "saisrinivasa.likhit@students.iiit.ac.in"
 __status__ = "Dev"
