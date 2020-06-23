@@ -220,7 +220,6 @@ class Overtaking(Base): # get df of who each racer overtook and in which lap for
     return standings.index[standings['driverId']==driver].tolist()[0]
 
   def legitimateOvertakes(self, raceId, lap, racers_overtaken):
-    print(raceId, lap)
     lap = lap.split("_")[1]
     # if each driver in racers_overtaken was still racing when this overtake happened
     # i.e it is wthin the number of laps they completed as given in results.csv
