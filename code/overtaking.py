@@ -176,7 +176,8 @@ class ActualLaptimes(Base): # get the timing for a lap, remove the pitstop time 
     # lap_1 to final lap
     for column in columns[1:]:
       # subtract pitstop time from laptime
-      columnDf[column] = laptimes[column] - pitstops[column] 
+      columnDf[column] = laptimes[column] 
+      # columnDf[column] = laptimes[column] - pitstops[column] 
 
     # get cumulative sum
     for index in range(2,len(columns)):
@@ -231,6 +232,13 @@ class Overtaking(Base): # get df of who each racer overtook and in which lap for
       # equal to because racer completed laps_done laps, racer gets out of race in the incomplete lap that will not be counted in laps_done
       if int(lap)<=int(laps_done): # int conversion, beacuse stored as string in df
         final.append(racer)
+        
+    # check for pitstop in lap and lap-1
+    for racer in final:
+      tmp = self.pitstops_df[(self.pitstops_df['raceId']==raceId) & (self.pitstops_df['driverId']==racer)]
+      pitstopOccurence = len(set([int(lap),(int(lap)-1)]).intersection(set(tmp['lap']))) > 0
+      if pitstopOccurence:
+        final.remove(racer)
     return set(final)
 
   def getOvertakes(self, raceId, lap, prev, cur, driverIds):
@@ -309,7 +317,7 @@ class Overtaking(Base): # get df of who each racer overtook and in which lap for
 
 if __name__ == "__main__":
     raceIds = Base().getRaceIds()
-    # raceIds = [841]
+    # raceIds = [996]
     LAPTIMES, PITSTOPS, ACTUAL_LAPTIMES, OVERTAKES, BASE = Laptimes(), Pitstops(), ActualLaptimes(), Overtaking(), Base()
     for raceId in tqdm(raceIds):
       laptimes = LAPTIMES.createLaptimesDf(raceId)
