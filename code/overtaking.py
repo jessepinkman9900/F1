@@ -316,14 +316,17 @@ class Overtaking(Base): # get df of who each racer overtook and in which lap for
 
 
 if __name__ == "__main__":
-    raceIds = Base().getRaceIds()
-    # raceIds = [996]
+    # raceIds = Base().getRaceIds()
+    raceIds = [118]
     LAPTIMES, PITSTOPS, ACTUAL_LAPTIMES, OVERTAKES, BASE = Laptimes(), Pitstops(), ActualLaptimes(), Overtaking(), Base()
     for raceId in tqdm(raceIds):
       laptimes = LAPTIMES.createLaptimesDf(raceId)
+      laptimes.to_csv("laptimes_118.csv")
       pitstops = PITSTOPS.createPistopsDf(raceId)
+      pitstops.to_csv("pitstops_118.csv")
       actualLaptime = ACTUAL_LAPTIMES.createActualLaptimesDf(laptimes, pitstops)
+      actualLaptime.to_csv("actualLaptimes_118.csv")
       overtakes = OVERTAKES.createOvertakingDf(raceId, actualLaptime)
       OVERTAKES.addToOvertakeDf(raceId, overtakes)
-      BASE.saveAsCsv(overtakes,raceId)
-    OVERTAKES.saveOvertakeDf()
+      # BASE.saveAsCsv(overtakes,raceId)
+    # OVERTAKES.saveOvertakeDf()
