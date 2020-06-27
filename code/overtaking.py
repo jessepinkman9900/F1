@@ -101,6 +101,9 @@ class Overtakes(Base):
   def getOvertakes(self, raceId, driverIds, lap, prev_lap_standinds, cur_lap_standings):
     ''' get list containg a list of racers each driver overtook in this lap '''
     overtakes = [[] for _ in range(len(driverIds))] #list to store list of all racers a driver overtook
+    # sorting
+    prev_lap_standinds.sort_values(['position'], axis=0, ascending=True, inplace=True, kind='quicksort', na_position='last')
+    cur_lap_standings.sort_values(['position'], axis=0, ascending=True, inplace=True, kind='quicksort', na_position='last')
 
     for index in range(len(driverIds)):
       driverId = driverIds[index]
@@ -109,16 +112,15 @@ class Overtakes(Base):
       prev_lap_pos = self.getPosition(prev_lap_standinds, driverId)
       cur_lap_pos = self.getPosition(cur_lap_standings, driverId)
 
-      #add driverIds to list of position of racer improves
-      if cur_lap_pos<prev_lap_pos:
-        # all the driverIds behind me now who were not behind me in prev lap
-        drivers_behind_me_prev_lap = set(prev_lap_standinds.driverId[prev_lap_pos+1:])
-        drivers_behind_me_cur_lap = set(cur_lap_standings.driverId[cur_lap_pos+1:])
-        drivers_overtaken = drivers_behind_me_cur_lap.difference(drivers_behind_me_prev_lap)
-        # filter the overtakes based on if it is legitimate overtake or of it is due to retirement or other resons
-        drivers_overtaken = self.legitimateOvertakes(raceId, lap, drivers_overtaken)
-        # add list of all drivers i overtook into the overtakes list
-        overtakes[index] = list(drivers_overtaken)
+      # add driverIds to list of position of racer improves
+      # all the driverIds behind me now who were not behind me in prev lap
+      drivers_behind_me_prev_lap = set(prev_lap_standinds.driverId[prev_lap_pos+1:])
+      drivers_behind_me_cur_lap = set(cur_lap_standings.driverId[cur_lap_pos+1:])
+      drivers_overtaken = drivers_behind_me_cur_lap.difference(drivers_behind_me_prev_lap)
+      # filter the overtakes based on if it is legitimate overtake or of it is due to retirement or other resons
+      drivers_overtaken = self.legitimateOvertakes(raceId, lap, drivers_overtaken)
+      # add list of all drivers i overtook into the overtakes list
+      overtakes[index] = list(drivers_overtaken)
     return overtakes
         
 
