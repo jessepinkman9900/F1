@@ -11,14 +11,6 @@
 ## Status: Dev
 ##################################################
 
-__author__ = "Saisrinivasa Likhit Kota"
-__copyright__ = "Copyright 2020, F1 Data Project"
-__credits__ = ["Saisrinivasa Likhit Kota"]
-__license__ = "MIT"
-__version__ = "0.2.1"
-__maintainer__ = "Saisrinivasa Likhit Kota"
-__email__ = "saisrinivasa.likhit@students.iiit.ac.in"
-__status__ = "Dev"
 
 import pandas as pd
 from tqdm import tqdm
