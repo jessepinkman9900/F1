@@ -1,3 +1,17 @@
+##################################################
+## Infer the abnormal overtake values in data 
+## generated from overtaking.py
+##################################################
+## Author: Saisrinivasa Likhit Kota
+## Copyright: Copyright 2020, F1 Data Project
+## Credits: [Saisrinivasa Likhit Kota]
+## License: MIT
+## Version: 0.1.0
+## Mmaintainer: Saisrinivasa Likhit Kota
+## Email: saisrinivasa.likhit@students.iiit.ac.in
+## Status: Dev
+##################################################
+
 import pandas as pd
 from tqdm import tqdm
 
@@ -9,7 +23,6 @@ if __name__ == "__main__":
     # raceIds = set([107])
 
     abnormal_races = set()
-    # deets = []
     start = 5
     end = 10
     deets = pd.DataFrame(columns=['raceId','laps','numberOvertaken'])
