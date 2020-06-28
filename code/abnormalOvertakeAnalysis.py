@@ -24,7 +24,10 @@ if __name__ == "__main__":
 
     abnormal_races = set()
     start = 5
-    end = 10
+    end = 17
+    freq = []
+    for _ in range(0,18):
+      freq.append(0)
     deets = pd.DataFrame(columns=['raceId','laps','numberOvertaken'])
     for raceId in tqdm(raceIds):
       overtakes_df = pd.read_csv(DIR + str(raceId) + ".csv")
@@ -32,8 +35,9 @@ if __name__ == "__main__":
       laps = overtakes_df.columns[2:]
       for i, data in overtakes_df.iterrows():
         for lap in laps:
+          # finding the abnormal instances
           element = data[lap]
-          tmp = set(element[1:-1].split(','))
+          tmp = list(set(element[1:-1].split(',')))
           if len(tmp) >= start and len(tmp) <= end:
             abnormal_races.add(raceId)
             tmpDf = pd.DataFrame({
@@ -42,7 +46,28 @@ if __name__ == "__main__":
               "numberOvertaken":[len(tmp)]
             })
             deets = deets.append(tmpDf)
-    print(abnormal_races)
-    print(deets)
-    deets.to_csv("abnormalOvertakeValues.csv",index=False)
 
+          # calculating freq for overtaking statistics
+          ind = len(tmp)
+          if len(tmp[0])==0:
+            ind = 0
+          freq[ind]+=1
+
+    
+    print(abnormal_races)
+    print(len(abnormal_races))
+    deets.to_csv("abnormalOvertakeValues.csv",index=False)
+    # print(deets)
+
+    # calculating overtake statistics
+    overtaken = [i for i in range(0,18)]
+    total = 0
+    for i in range(0,18):
+      total+=freq[i]
+    percentages = [round((freq[i]*100)/total,3) for i in range(0,18)]
+    overtakeStatistics = pd.DataFrame({
+      "driversOvertaken":overtaken,
+      "count":freq,
+      "percentage":percentages
+    })
+    overtakeStatistics.to_csv("overtakeStatistics.csv", index=False)
