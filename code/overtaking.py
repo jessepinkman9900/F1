@@ -83,7 +83,7 @@ class Overtakes(Base):
     # check for pitstop in lap and lap-1
     for driverId in final:
       tmp = self.pitstops_df[(self.pitstops_df.raceId==raceId) & (self.pitstops_df.driverId==driverId)]
-      pitstop_true = len(set([int(lap),(int(lap)-1)]).intersection(set(tmp.lap))) > 0
+      pitstop_true = (int(lap) in set(tmp.lap))|(int(lap)-1 in set(tmp.lap))
       if pitstop_true:
         final.remove(driverId)
     return set(final)
