@@ -5,7 +5,7 @@
 ## Copyright: Copyright 2020, F1 Data Project
 ## Credits: [Saisrinivasa Likhit Kota]
 ## License: MIT
-## Version: 0.2.1
+## Version: 0.2.2
 ## Mmaintainer: Saisrinivasa Likhit Kota
 ## Email: saisrinivasa.likhit@students.iiit.ac.in
 ## Status: Dev
@@ -72,20 +72,21 @@ class Overtakes(Base):
     lap = lap.split("_")[1]
     # if each driver in racers_overtaken was still racing when this overtake happened
     # i.e it is wthin the number of laps they completed as given in results.csv
-    final = []
+    tmp1 = []
     for driverId in drivers_overtaken:
       laps_done = self.results_df[(self.results_df.raceId==raceId) & (self.results_df.driverId==driverId)].laps
       # equal to because racer completed laps_done laps,
       # racer gets out of race in the incomplete lap that will not be counted in laps_done
       if int(lap) <= int(laps_done): # int conversion, beacuse stored as string in df
-        final.append(driverId)
+        tmp1.append(driverId)
 
     # check for pitstop in lap and lap-1
-    for driverId in final:
+    final = []
+    for driverId in tmp1:
       tmp = self.pitstops_df[(self.pitstops_df.raceId==raceId) & (self.pitstops_df.driverId==driverId)]
       pitstop_true = (int(lap) in set(tmp.lap))|(int(lap)-1 in set(tmp.lap))
-      if pitstop_true:
-        final.remove(driverId)
+      if not pitstop_true:
+        final.append(driverId)
     return set(final)
 
   def getPosition(self, standings, driverId):
@@ -222,7 +223,7 @@ class Positions(Base):
 
 if __name__ == "__main__":
     raceIds = Base().getRaceIds()
-    # raceIds = [118]
+    # raceIds = [950]
     BASE, OVERTAKES, POSITIONS  = Base(), Overtakes(), Positions()
     for raceId in tqdm(raceIds):
       positions = POSITIONS.createPositionsDf(raceId)
