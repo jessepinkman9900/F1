@@ -5,7 +5,7 @@
 ## Copyright: Copyright 2020, F1 Data Project
 ## Credits: [Saisrinivasa Likhit Kota]
 ## License: MIT
-## Version: 0.2.2
+## Version: 0.3.0
 ## Mmaintainer: Saisrinivasa Likhit Kota
 ## Email: saisrinivasa.likhit@students.iiit.ac.in
 ## Status: Dev
@@ -28,7 +28,7 @@ class Base:
     self.results_df = pd.read_csv(Base.RESULTS_FILE)
 
   def getRaceIds(self):
-    raceIds = set(self.laptimes_df['raceId'])
+    raceIds = set(self.pitstops_df['raceId'])
     return raceIds
 
   def saveAsCsv(self,df,raceId):
