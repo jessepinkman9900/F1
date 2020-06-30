@@ -6,7 +6,7 @@
 ## Copyright: Copyright 2020, F1 Data Project
 ## Credits: [Saisrinivasa Likhit Kota]
 ## License: MIT
-## Version: 0.1.0
+## Version: 0.1.1
 ## Mmaintainer: Saisrinivasa Likhit Kota
 ## Email: saisrinivasa.likhit@students.iiit.ac.in
 ## Status: Dev
@@ -16,10 +16,10 @@ import pandas as pd
 from tqdm import tqdm
 
 if __name__ == "__main__":
-    LAPTIMES_FILE = "./data/base/laptimes.csv"
+    PITSTOPS_FILE = "./data/base/pitstops.csv"
     DIR = "./data/derived/overtaking/overtaking_race_"
-    laptimes_df = pd.read_csv(LAPTIMES_FILE)
-    raceIds = set(laptimes_df['raceId'])
+    pitstops_df = pd.read_csv(PITSTOPS_FILE)
+    raceIds = set(pitstops_df['raceId'])
     # raceIds = set([107])
 
     abnormal_races = set()
