@@ -112,6 +112,9 @@ class Overtakes(Base):
       drivers_behind_me_prev_lap = set(prev_lap_standinds.driverId[prev_lap_pos+1:])
       drivers_behind_me_cur_lap = set(cur_lap_standings.driverId[cur_lap_pos+1:])
       drivers_overtaken = drivers_behind_me_cur_lap.difference(drivers_behind_me_prev_lap)
+      # possible that driver might have moved ahead
+      if driverId in drivers_overtaken:
+        drivers_overtaken.remove(driverId)
       # filter the overtakes based on if it is legitimate overtake or
       # of it is due to retirement or other resons
       drivers_overtaken = self.legitimateOvertakes(raceId, lap, drivers_overtaken)
