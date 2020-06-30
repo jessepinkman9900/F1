@@ -23,7 +23,7 @@ if __name__ == "__main__":
     # raceIds = set([107])
 
     abnormal_races = set()
-    start = 5
+    start = 4
     end = 17
     freq = []
     for _ in range(0,18):
