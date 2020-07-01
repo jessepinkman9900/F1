@@ -6,7 +6,7 @@
 ## Copyright: Copyright 2020, F1 Data Project
 ## Credits: [Saisrinivasa Likhit Kota]
 ## License: MIT
-## Version: 0.1.1
+## Version: 0.1.2
 ## Mmaintainer: Saisrinivasa Likhit Kota
 ## Email: saisrinivasa.likhit@students.iiit.ac.in
 ## Status: Dev
@@ -24,9 +24,9 @@ if __name__ == "__main__":
 
     abnormal_races = set()
     start = 4
-    end = 17
+    end = 10
     freq = []
-    for _ in range(0,18):
+    for _ in range(0,end+1):
       freq.append(0)
     deets = pd.DataFrame(columns=['raceId','laps','numberOvertaken'])
     for raceId in tqdm(raceIds):
@@ -60,11 +60,11 @@ if __name__ == "__main__":
     # print(deets)
 
     # calculating overtake statistics
-    overtaken = [i for i in range(0,18)]
+    overtaken = [i for i in range(0,end+1)]
     total = 0
-    for i in range(0,18):
+    for i in range(0,end+1):
       total+=freq[i]
-    percentages = [round((freq[i]*100)/total,3) for i in range(0,18)]
+    percentages = [round((freq[i]*100)/total,3) for i in range(0,end+1)]
     overtakeStatistics = pd.DataFrame({
       "driversOvertaken":overtaken,
       "count":freq,
