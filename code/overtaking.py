@@ -5,7 +5,7 @@
 ## Copyright: Copyright 2020, F1 Data Project
 ## Credits: [Saisrinivasa Likhit Kota]
 ## License: MIT
-## Version: 0.3.0
+## Version: 0.3.1
 ## Mmaintainer: Saisrinivasa Likhit Kota
 ## Email: saisrinivasa.likhit@students.iiit.ac.in
 ## Status: Dev
@@ -191,6 +191,8 @@ class Positions(Base):
       driverId = driverIds[index]
       # all the rows with the wanted driverId
       tmp = race_laptimes_df[race_laptimes_df.driverId==driverId]
+      # sort to ensure you get position in correct lap order
+      tmp.sort_values(['lap'], axis=0, ascending=True, inplace=True, kind='quicksort', na_position='last')
       # lapwise positions (standings) for a driver in this race
       positions = list(tmp.loc[:,'position'])
       # if driver did complete all laps of race then add defualt postion value
@@ -223,7 +225,7 @@ class Positions(Base):
 
 if __name__ == "__main__":
     raceIds = Base().getRaceIds()
-    # raceIds = [950]
+    # raceIds = [911]
     BASE, OVERTAKES, POSITIONS  = Base(), Overtakes(), Positions()
     for raceId in tqdm(raceIds):
       positions = POSITIONS.createPositionsDf(raceId)
