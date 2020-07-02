@@ -5,7 +5,7 @@
 ## Copyright: Copyright 2020, F1 Data Project
 ## Credits: [Saisrinivasa Likhit Kota]
 ## License: MIT
-## Version: 0.3.1
+## Version: 0.3.2
 ## Mmaintainer: Saisrinivasa Likhit Kota
 ## Email: saisrinivasa.likhit@students.iiit.ac.in
 ## Status: Dev
@@ -110,9 +110,13 @@ class Overtakes(Base):
 
       # add driverIds to list of position of racer improves
       # all the driverIds behind me now who were not behind me in prev lap
-      drivers_behind_me_prev_lap = set(prev_lap_standinds.driverId[prev_lap_pos+1:])
-      drivers_behind_me_cur_lap = set(cur_lap_standings.driverId[cur_lap_pos+1:])
+      drivers_behind_me_prev_lap = set(prev_lap_standinds.driverId[prev_lap_pos:])
+      drivers_behind_me_cur_lap = set(cur_lap_standings.driverId[cur_lap_pos:])
       drivers_overtaken = drivers_behind_me_cur_lap.difference(drivers_behind_me_prev_lap)
+      # if raceId==1005 and lap=="lap_8" and driverId==844:
+      #   print(drivers_behind_me_prev_lap)
+      #   print(drivers_behind_me_cur_lap)
+      #   print(drivers_overtaken)
       # possible that driver might have moved ahead
       if driverId in drivers_overtaken:
         drivers_overtaken.remove(driverId)
@@ -225,7 +229,7 @@ class Positions(Base):
 
 if __name__ == "__main__":
     raceIds = Base().getRaceIds()
-    # raceIds = [911]
+    # raceIds = [1005]
     BASE, OVERTAKES, POSITIONS  = Base(), Overtakes(), Positions()
     for raceId in tqdm(raceIds):
       positions = POSITIONS.createPositionsDf(raceId)
