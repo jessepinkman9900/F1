@@ -16,7 +16,7 @@ import pandas as pd
 from tqdm import tqdm
 
 if __name__ == "__main__":
-    PITSTOPS_FILE = "./data/base/pitstops.csv"
+    PITSTOPS_FILE = "./data/base/pit_stops.csv"
     DIR = "./data/derived/overtaking/overtaking_race_"
     pitstops_df = pd.read_csv(PITSTOPS_FILE)
     raceIds = set(pitstops_df['raceId'])
