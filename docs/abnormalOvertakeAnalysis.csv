@@ -1,4 +1,6 @@
 raceId,laps,numberOvertaken,year,grandPrix,reason,source
+1020,lap_6,3,2019,German Grand Prix,valid,https://www.fia.com/sites/default/files/2019_11_ger_f1_r0_timing_racelapchart_v01.pdf
+1020,lap_5,3,2019,German Grand Prix,valid,https://www.fia.com/sites/default/files/2019_11_ger_f1_r0_timing_racelapchart_v01.pdf
 1005,lap_8,3,2018,Japanese Grand Prix,valid,https://www.fia.com/sites/default/files/2018_17_jpn_f1_r0_timing_racelapchart_v01.pdf
 1002,lap_9,3,2018,Italian Grand Prix,valid,https://www.fia.com/sites/default/files/2018_14_ita_f1_r0_timing_racelapchart_v01.pdf
 995,lap_5,3,2018,Canadian Grand Prix,valid,https://www.fia.com/sites/default/files/2018_07_can_f1_r0_timing_racelapchart_v01.pdf
