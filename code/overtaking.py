@@ -16,8 +16,8 @@ import pandas as pd
 from tqdm import tqdm
 
 class Base:
-  LAPTIMES_FILE = "./data/base/laptimes.csv"
-  PITSTOPS_FILE = "./data/base/pitstops.csv"
+  LAPTIMES_FILE = "./data/base/lap_times.csv"
+  PITSTOPS_FILE = "./data/base/pit_stops.csv"
   RESULTS_FILE = "./data/base/results.csv"
   SAVE_DIR = "./data/derived/overtaking/"
   SAVE_FILE = "overtaking_race_"
@@ -46,7 +46,7 @@ class Overtakes(Base):
 
   def createPanel(self, raceId, data):
     res = pd.DataFrame(columns=self.columns)
-    driverId = data.driverId
+    overtakingDriverId = data.driverId
     laps = [lap.split("_")[1] for lap in data.keys()[2:]]
 
     for lap in laps:
@@ -54,7 +54,7 @@ class Overtakes(Base):
       for driverId in overtaken_driverIds:
         tmp = pd.DataFrame({
           "raceId" : [raceId],
-          "driverId" : [driverId],
+          "driverId" : [overtakingDriverId],
           "lap" : [lap],
           "driverOvertaken" : [driverId]
         })
