@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     abnormal_races = set()
     start = 3
-    end = 10
+    end = 14
     freq = []
     for _ in range(0,end+1):
       freq.append(0)
