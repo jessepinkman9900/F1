@@ -191,4 +191,5 @@ if __name__ == "__main__":
   
   # convert raceIds from year:race into raceId from races.csv
   convertRaceId()
-  
+
+  # manually append to pit_stops.csv
