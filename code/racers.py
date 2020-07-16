@@ -46,15 +46,15 @@ if __name__ == "__main__":
         pittedRacers = set(pitstopsThisLap.driverId)
 
         # remove those who took pitstop
-        finalListOfRacers = []
-        for driver in racersRacingThisLap:
-          pitstop_true = driver in pittedRacers
-          if pitstop_true:
-            continue
-          finalListOfRacers.append(driver)
+        # finalListOfRacers = []
+        # for driver in racersRacingThisLap:
+        #   pitstop_true = driver in pittedRacers
+        #   if pitstop_true:
+        #     continue
+        #   finalListOfRacers.append(driver)
 
         # add them to the racersPerLap_df
-        numberOfRacersThisLap = len(finalListOfRacers)
+        numberOfRacersThisLap = len(racersRacingThisLap)
         tmpDf = tmpDf = pd.DataFrame({
               "raceId":[raceId],
               "lap":[lap],
