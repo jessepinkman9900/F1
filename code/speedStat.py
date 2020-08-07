@@ -35,7 +35,7 @@ if __name__ == '__main__':
     raceIds = set(pitStopsDf['raceId'])
 
     # results dataframe
-    columns = ['raceId', 'driverId', 'mean', 'std']
+    columns = ['raceId', 'lap', 'mean', 'std']
     RESULT_DF = pd.DataFrame(columns=columns)
 
     for race in tqdm(raceIds):
@@ -59,12 +59,16 @@ if __name__ == '__main__':
         # remove lap times with pitstops
         circuitId  = racesDf[racesDf.raceId == race].circuitId.values[0]
         RACE_DISTANCE_KM = circuitsDf[circuitsDf.circuitId == circuitId].kms.values[0]
-        for driver in DriverIds:
+        for lap in Laps:
             SPEEDS = []
-            for lap in Laps:
+            for driver in DriverIds:
                 # did driver take pit stop
                 pitstop_true = (driver in set(racePitStops[racePitStops.lap == lap].driverId))
 
+                # did driver take pit stop
+                # uncomment to account for 2 laps due to pitstop
+                pitstop_true = (driver in set(racePitStops[racePitStops.lap == lap].driverId)) | (
+                            driver in set(racePitStops[racePitStops.lap == (lap + 1)].driverId))
                 # driver is out of race
                 driver_did_not_do_lap = (lap>max(list(set(raceLapTimes[raceLapTimes.driverId == driver].lap))))
 
@@ -78,7 +82,7 @@ if __name__ == '__main__':
 
             if len(SPEEDS)==0:
                 continue
-            countedValues[driver] = SPEEDS
+            countedValues[lap] = SPEEDS
             # mean and std
             mean = np.mean(SPEEDS)
             std  = np.std(SPEEDS)
@@ -86,12 +90,12 @@ if __name__ == '__main__':
             # add to data frame
             ROW = pd.DataFrame({
                 'raceId':[race],
-                'driverId':[driver],
+                'lap':[lap],
                 'mean':[mean],
                 'std':[std],
             })
 
             RESULT_DF = RESULT_DF.append(ROW)
 
-        RESULT_DF.to_csv(DIR + "speed_stats.csv", index=False)
+        RESULT_DF.to_csv(DIR + "speed_stats_pitstop_2_lap.csv", index=False)
     # pass
