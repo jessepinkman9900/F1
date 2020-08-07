@@ -1,16 +1,14 @@
 ##################################################
-## Get the laps that were slower than usual and 
-## classify as yellow flagged laps based on 
-## predesigned conditions
+# Get the laps that were slower than usual and
+# classify as yellow flagged laps based on
+# predesigned conditions
 ##################################################
-## Author: Saisrinivasa Likhit Kota
-## Copyright: Copyright 2020, F1 Data Project
-## Credits: [Saisrinivasa Likhit Kota]
-## License: MIT
-## Version: 0.0.1
-## Mmaintainer: Saisrinivasa Likhit Kota
-## Email: saisrinivasa.likhit@students.iiit.ac.in
-## Status: Dev
+# Author: Saisrinivasa Likhit Kota
+# Copyright: Copyright 2020, F1 Data Project
+# License: MIT
+# Version: 0.0.1
+# Email: saisrinivasa.likhit@students.iiit.ac.in
+# Status: Dev
 ##################################################
 
 import pandas as pd
@@ -81,10 +79,10 @@ def plot_t_statistic(countedValues):
   x,y = zip(*lists)
   mean_of_all_times, std_of_all_times = globalStat(countedValues)
   t_stat = ((np.array(y)-mean_of_all_times)/std_of_all_times)
-  plt.plot(x, t_stat, label = "t-statistic")
+  plt.plot(x, t_stat, label="t-statistic")
 
-  plt.axhline(y=2,color='red',linestyle='dashed')
-  plt.axhline(y=1,color='green',linestyle='dashed')
+  plt.axhline(y=2,color='red', linestyle='dashed')
+  plt.axhline(y=1,color='green', linestyle='dashed')
 
   plt.xticks(x)
   plt.grid()
@@ -103,8 +101,8 @@ def plot_change(countedValues):
   x,y = zip(*lists)
   plt.plot(x,y,label="change in mean")
 
-  plt.axhline(y=CHANGE_P165_LINE,label="+1.65",color='red',linestyle='dashed')
-  plt.axhline(y=CHANGE_M165_LINE,label="-1.65",color='green',linestyle='dashed')
+  plt.axhline(y=CHANGE_P165_LINE, label="+1.65", color='red', linestyle='dashed')
+  plt.axhline(y=CHANGE_M165_LINE, label="-1.65", color='green', linestyle='dashed')
 
   plt.xticks(x)
   plt.grid()
@@ -133,9 +131,9 @@ def plot_mean_laptimes(countedValues):
   x,y = zip(*lists)
   plt.plot(x,y,label="test")
 
-  plt.axhline(y=RACETIME_P165_LINE,label="+1.65 race",color='red',linestyle='dashed')
-  plt.axhline(y=RACETIME_M165_LINE,label="-1.65 race",color='green',linestyle='dashed')
-  plt.axhline(y=RACETIME_MEAN,label="mean",color='orange',linestyle='dashed')
+  plt.axhline(y=RACETIME_P165_LINE, label="+1.65 race", color='red', linestyle='dashed')
+  plt.axhline(y=RACETIME_M165_LINE, label="-1.65 race", color='green', linestyle='dashed')
+  plt.axhline(y=RACETIME_MEAN, label="mean",color='orange', linestyle='dashed')
 
   plt.xticks(x)
   plt.grid()
@@ -256,9 +254,10 @@ if __name__ == "__main__":
           continue
         laptime = raceLaptimes[(raceLaptimes.lap==lap)&(raceLaptimes.driverId==driver)].milliseconds.values[0]
         times.append(laptime)
-        if len(times)==0:
-          continue
-        countedValues[lap] = times
+
+      if len(times)==0:
+        continue
+      countedValues[lap] = times
 
     # GETTING LAPWISE AND RACEWISE STATS 
     # calculating mean and std for all times in this RACE, single values
@@ -295,10 +294,11 @@ if __name__ == "__main__":
       # plot_t_statistic(countedValues) # uncomment to plot
 
     # print(ResultDf)
-  ResultDf.sort_values(['raceId'],ascending=True, inplace=True)
+  ResultDf.sort_values(['raceId'], ascending=True, inplace=True)
   print(ResultDf)
-  ResultDf.to_csv(DIR + "yellow_flag.csv",index=False)
-    
+  ResultDf.to_csv("yellow_flag.csv", index=False)
+  # ResultDf.to_csv(DIR + "yellow_flag.csv",index=False)
+
 
 
     
